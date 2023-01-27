@@ -4,72 +4,97 @@ import {
   TextInput,
   View,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import { useSelector } from "react-redux";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { NeuView } from "neumorphism-ui";
-import { CheckBox, Icon } from "@rneui/themed";
+import { CheckBox, Icon, Button } from "@rneui/themed";
+import ShowList from "./ShowList";
 
 export default function WatchList({ navigation, route }) {
   const [category, setCategory] = useState(route.params.category);
   const [check, setCheck] = useState(false);
-  const [showName, setShowName] = useState("Enter show...");
+  const [showName, setShowName] = useState("");
+  const [unwatchedList, setUnwatchedList] = useState([]);
+  const [watchedList, setWatchedList] = useState([]);
 
   const itemList = useSelector(
     (state) => state.find((obj) => obj.category === category).items
-  );
+   );
 
   useEffect(() => {
     console.log(itemList);
+    console.log(category);
+    const unWatched = [...itemList.filter((obj) => obj.watched === false)];
+    const watched = [...itemList.filter((obj) => obj.watched === true)];
+    setUnwatchedList(unWatched);
+    setWatchedList(watched);
   }, []);
 
+  var textInputRef = React.createRef();
+  const dispatch = useDispatch();
+
+  const addShowToList = () => {
+    console.log("Adding show to list");
+    const arr = [...unwatchedList];
+      let showObject = {
+        name : showName,
+        watched : false,
+      }
+      arr.unshift(showObject);
+      dispatch({type : 'addShowToCategory', 'updatedCategory' : category, 'updatedItems' : arr})
+      setUnwatchedList(arr);
+      setShowName("");
+    }
+
   return (
+ 
     <View style={styles.container}>
-      <Text> WatchList </Text>
+    
+     <View style={{margin : 10}}>
       <CheckBox
         center
-        title={`Click Here to ${check ? "Remove" : "Add"} This Item`}
+        title={`Add a show`}
         iconRight
         iconType="material"
         checkedIcon="clear"
         uncheckedIcon="add"
         checkedColor="red"
         checked={check}
-        onPress={() => setCheck(!check)}
+        onPress={() => {
+            textInputRef.current.focus(); 
+            setCheck(!check);
+          }}
       />
-      <TextInput
-        style={styles.input}
-        onChangeText={setShowName}
-        value={showName}
-      />
-      <View style={styles.list}>
-        {itemList.length > 0 ? (
-          itemList.map((item, idx) => {
-            return (
-              <View style={{flexDirection:'row'}} key={idx}>
-                <TouchableOpacity style={{flex:2}}>
-                  <NeuView style={styles.Neu}>
-                    <Text style={{ opacity: 0.9, color: "white" }}>
-                      {item.name}
-                    </Text>
-                  </NeuView>
-                </TouchableOpacity>
-                <View style={{ flex: 1 }}>
-                    <CheckBox
-                    center
-                    title="Wacthed"
-                    checked={false}
-                    //   onPress={() => setCheck1(!check1)}
-                    />
-                </View>
-              </View>
-            );
-          })
-        ) : (
-          <Text> Your {category} watchlist is empty 😓 </Text>
-        )}
       </View>
+        
+    <View style={{flexDirection : 'row', alignItems : 'center', padding : 10}}>
+        <View style={{ flex : 2.1, width : "60%", marginLeft : 5}}>
+            <TextInput
+                style={styles.input}
+                onChangeText={setShowName}
+                value={showName}
+                ref={textInputRef}
+                placeholder = "Add Show..."
+                onSubmitEditing = {addShowToList}
+            />
+      </View>
+      <View style={{flex : 1}}>
+     <Button onPress={addShowToList} size="sm" title="+" type="clear" />
+     </View>
+     </View>
+
+            <ShowList type="Unwatched" category={category} list={unwatchedList}/>
+
+            <View style={styles.hairline} />
+            <Text style={styles.loginButtonBelowText1}>Watched</Text>
+            <View style={styles.hairline} />
+
+            <ShowList type="Watched" category={category} list={watchedList}/>
+   
     </View>
+   
   );
 }
 
@@ -83,15 +108,33 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
+    borderRadius : 20,
   },
   list: {
     alignItems: "center",
+    padding : 10,
+  },
+  listInner : {
+    flexDirection : "row",
+    alignItems: "center",
   },
   Neu: {
-    width: 300,
+    width: "100%",
     backgroundColor: "blue",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
+  },
+  hairline: {
+    backgroundColor: '#A2A2A2',
+    height: 2,
+    width: 165
+  },
+  loginButtonBelowText1: {
+    fontFamily: 'AvenirNext-Bold',
+    fontSize: 14,
+    paddingHorizontal: 5,
+    alignSelf: 'center',
+    color: '#A2A2A2'
   },
 });

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
-import Card from "./Card.js";
+
 import { NeuView } from "neumorphism-ui";
 
 const categories = ["Anime", "Movies", "TV Series", "Books"];
