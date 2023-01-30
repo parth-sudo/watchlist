@@ -25,6 +25,17 @@ const reducerFoo = (state = defaultState, action) => {
     else if(action.type === 'deleteItem') {
         state;
     }
+    else if(action.type === 'updateWatchedItems') {
+        const curState = [...state];
+        
+        let shows = curState.find((obj) => obj.category === action.category).items;
+        let showIndex = shows.findIndex((obj) => obj.name === action.name);
+        let obj = shows[showIndex];
+        console.log(obj);
+        obj.watched =  !obj.watched
+   
+        return curState;
+    }
 
     return state;
 }
