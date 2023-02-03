@@ -67,35 +67,47 @@ export default function WatchList({ navigation, route }) {
     setShowName("");
   };
 
+  const showSearchResults = () => {
+    const id1 = watchedList.findIndex((obj) => obj.name === searchedShow);
+    const id2 = unwatchedList.findIndex((obj) => obj.name === searchedShow);
+    if(id1 < 0 && id2 < 0) {
+      Alert.alert("Show not found.");
+      return;
+    }
+  }
+
   return (
     <View style={styles.container}>
      
-      <View style={{ flexDirection: "row", alignItems: "center", padding: 10 }}>
+      <View style={{  flexDirection: "row", alignItems: "center", padding: 10 }}>
         <View style={{ flex: 1, width: "60%", marginLeft: 5 }}>
           <TextInput
             style={styles.input}
             onChangeText={setShowName}
             value={showName}
-        
             placeholder="Add Show..."
             onSubmitEditing={addShowToList}
           />
         </View>
 
+       {/* Search Bar */}
         <View style={{ flex: 1, width: "60%", marginLeft: 5 }}>
           <TextInput
             style={styles.input}
             onChangeText={setSearchedShow}
             value={searchedShow} 
-      
-            placeholder="Search Show..."
-            onSubmitEditing={addShowToList}
+            placeholder= "Search Show..."
+            onSubmitEditing={showSearchResults}
           />
         </View>
-      
       </View>
 
-      
+      <Text> Yet to watch ({unwatchedList.length})</Text>
+
+      <View style={{flex : 3}}>
+
+      <ScrollView>
+        
       <ShowList
         type="Unwatched"
         category={category}
@@ -107,9 +119,9 @@ export default function WatchList({ navigation, route }) {
       />
 
       <View style={styles.hairline} />
-      <Text style={styles.loginButtonBelowText1}>Watched</Text>
+      <Text style={styles.loginButtonBelowText1}>Watched ({watchedList.length})</Text>
       <View style={styles.hairline} />
-
+      
       <ShowList
         type="Watched"
         category={category}
@@ -119,6 +131,9 @@ export default function WatchList({ navigation, route }) {
         setSecondaryList = {setUnwatchedList}
         isShowWatched={true}
       />
+      </ScrollView>
+
+      </View>      
     </View>
   );
 }

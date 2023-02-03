@@ -6,6 +6,7 @@ import {
     View,
     TouchableOpacity,
     ScrollView,
+    FlatList,
   } from "react-native";
 
 import { NeuView } from "neumorphism-ui";
@@ -18,11 +19,7 @@ function ShowList({list, secondaryList, setList, setSecondaryList, category, isS
     const [check, setCheck] = useState(isShowWatched);
     const [checkedShows, setCheckedShows] = useState(new Array(list.length).fill(isShowWatched));
 
-    const dispatch = useDispatch();
-
-    const tempUtility = () => {
-        
-    }
+    const dispatch = useDispatch(); 
 
     const updateWatchList = (showObject, idx) => {
      
@@ -39,28 +36,37 @@ function ShowList({list, secondaryList, setList, setSecondaryList, category, isS
         const l = [...list];
         const sl = [...secondaryList];
         //todo.
-        temp[idx] = !temp[idx];
+        // temp[idx] = !temp[idx];
 
         l.splice(idx, 1);
         sl.push(showObject);
 
         setList(l);
         setSecondaryList(sl);
-        setCheckedShows(temp);
+        // setCheckedShows(temp);
         // setWatched()
        
         console.log(checkedShows);
     }
 
+    const deleteWatchedShow = (showObject, idx) => {
+        const arr = [...list];
+        arr.splice(idx, 1);
+        setList(arr);
+        // todo.
+        // dispatch({type:'deleteItem', })
+    }
+
+
   return (
     
     <View style={styles.list}>
-
+    
         {list.length > 0 ? (
             list.map((item, idx) => {
                 return (
                 <View style={styles.listInner} key={idx}>
-                    <Text style={{width : "2%"}}> {idx+1}</Text>
+                  
                     <TouchableOpacity style={{flex:2}}>
                         <NeuView style={styles.Neu}>
                             <Text style={{ opacity: 0.9, color: "white" }}>
@@ -71,8 +77,15 @@ function ShowList({list, secondaryList, setList, setSecondaryList, category, isS
                     {!isShowWatched && 
                         <View style={{ flex: 1, padding: 1, marginRight:3 }}>
                         <TouchableOpacity onPress={() => updateWatchList(item, idx)}>
-                            <Text style={{fontSize : 15}}> Watched 😎✅</Text>
+                            <Text style={{fontSize : 15}}> Watched ✅</Text>
                     
+                        </TouchableOpacity>
+                    </View>
+                   }
+                   {isShowWatched && 
+                        <View style={{ flex: 1, padding: 1 }}>
+                        <TouchableOpacity onPress={() => deleteWatchedShow(item, idx)}>
+                            <Text style={{fontSize : 15}}> Delete Show</Text>
                         </TouchableOpacity>
                     </View>
                   }
@@ -83,6 +96,7 @@ function ShowList({list, secondaryList, setList, setSecondaryList, category, isS
         ) : (
         <Text> Your {category} watchlist is empty 😓 </Text>
         )}
+  
   </View>
   )
 }
@@ -101,7 +115,8 @@ const styles = StyleSheet.create({
     },
     list: {
       alignItems: "center",
-      padding : 10,
+      padding : 3,
+      
     },
     listInner : {
       flexDirection : "row",
