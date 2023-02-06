@@ -10,8 +10,8 @@ import {
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { CheckBox, Icon, Button } from "@rneui/themed";
 import ShowList from "./ShowList";
+import {app, db, getFirestore, collection, addDoc, getDocs} from "../firebase/index.js";
 
 export default function WatchList({ navigation, route }) {
   const [category, setCategory] = useState(route.params.category);
@@ -24,7 +24,7 @@ export default function WatchList({ navigation, route }) {
   // const [checkedShows, setCheckedShows] = useState([]);
 
   const itemList = useSelector(
-    (state) => state.find((obj) => obj.category === category).items
+    (state) => state.filter((obj) => obj.category === category)
   );
 
   useEffect(() => {
@@ -39,33 +39,38 @@ export default function WatchList({ navigation, route }) {
   var textInputRef = React.createRef();
   const dispatch = useDispatch();
 
-  const addShowToList = () => {
-    console.log("Adding show to list");
-    const arr = [...unwatchedList];
+  const addShowToListInFirebase = async() => {
     const str = showName;
+
     if(!str) {
       Alert.alert("Your show name cannot be empty.");
       return;
     }
-    else if(arr.findIndex((obj) => obj.name === str) >= 0) {
+    else if(unwatchedList.findIndex((obj) => obj.name === str) >= 0 || watchedList.findIndex((obj) => obj.name === str) >= 0) {
       Alert.alert(`${str} already exists in your watchlist.`);
       return;
     }
-     
-    let showObject = {
-      name: showName,
-      watched: false,
+
+    const showObject = {
+      name : showName,
+      watched : false,
+      category : category
     };
 
+    try{
+      const docRef = await addDoc(collection(db, "watchlist"), showObject);
+      console.log("Document written with ID", docRef.id);
+    } catch(e) {
+      console.error("Error adding document", e);
+    }
+
+    const arr = [...unwatchedList];
     arr.push(showObject);
-    dispatch({
-      type: "addShowToCategory",
-      updatedCategory: category,
-      updatedItems: arr,
-    });
+   
     setUnwatchedList(arr);
     setShowName("");
-  };
+  }
+
 
   const showSearchResults = () => {
     const id1 = watchedList.findIndex((obj) => obj.name === searchedShow);
@@ -79,35 +84,10 @@ export default function WatchList({ navigation, route }) {
   return (
     <View style={styles.container}>
      
-      <View style={{  flexDirection: "row", alignItems: "center", padding: 10 }}>
-        <View style={{ flex: 1, width: "60%", marginLeft: 5 }}>
-          <TextInput
-            style={styles.input}
-            onChangeText={setShowName}
-            value={showName}
-            placeholder="Add Show..."
-            onSubmitEditing={addShowToList}
-          />
-        </View>
-
-       {/* Search Bar */}
-        <View style={{ flex: 1, width: "60%", marginLeft: 5 }}>
-          <TextInput
-            style={styles.input}
-            onChangeText={setSearchedShow}
-            value={searchedShow} 
-            placeholder= "Search Show..."
-            onSubmitEditing={showSearchResults}
-          />
-        </View>
-      </View>
-
-      <Text> Yet to watch ({unwatchedList.length})</Text>
+      <Text style={{marginTop : 30}}> Yet to watch ({unwatchedList.length})</Text>
 
       <View style={{flex : 3}}>
-
       <ScrollView>
-        
       <ShowList
         type="Unwatched"
         category={category}
@@ -118,9 +98,9 @@ export default function WatchList({ navigation, route }) {
         isShowWatched={false}
       />
 
-      <View style={styles.hairline} />
+      <View>
       <Text style={styles.loginButtonBelowText1}>Watched ({watchedList.length})</Text>
-      <View style={styles.hairline} />
+      </View>
       
       <ShowList
         type="Watched"
@@ -134,6 +114,29 @@ export default function WatchList({ navigation, route }) {
       </ScrollView>
 
       </View>      
+      <View style={{alignItems: "center", padding: 10}}>
+        {/* <View style={{ flex: 1, width: "60%", marginLeft: 5 }}> */}
+          <TextInput
+            style={styles.input}
+            onChangeText={setShowName}
+            value={showName}
+            placeholder="Add Show..."
+            onSubmitEditing={addShowToListInFirebase}
+          />
+        {/* </View> */}
+
+       {/* Search Bar */}
+        {/* <View style={{ flex: 1, width: "60%", marginLeft: 5 }}> */}
+          <TextInput
+            style={styles.input}
+            onChangeText={setSearchedShow}
+            value={searchedShow} 
+            placeholder= "Search Show..."
+            onSubmitEditing={showSearchResults}
+          />
+        {/* </View> */}
+      </View>
+
     </View>
   );
 }
@@ -144,11 +147,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
+    height: 35,
+    width : "90%",
+    marginTop: 12,
     padding: 10,
     borderRadius: 20,
+    backgroundColor : "lightpink"
   },
   list: {
     alignItems: "center",
@@ -175,6 +179,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingHorizontal: 5,
     alignSelf: "center",
-    color: "#A2A2A2",
+    color: "grey",
   },
 });
