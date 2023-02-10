@@ -16,10 +16,10 @@ import {useState, useEffect} from "react";
 import Item from "./Item.js";
 
 function ShowList({list, secondaryList, setList, setSecondaryList, category, isShowWatched}) {
-
+    
     const [check, setCheck] = useState(isShowWatched);
     const [checkedShows, setCheckedShows] = useState(new Array(list.length).fill(isShowWatched));
-
+    
     
   return (
     

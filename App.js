@@ -12,23 +12,9 @@ import { Provider } from "react-redux";
 import store from "./store/index.js";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+// import { getUniqueId, getManufacturer } from 'react-native-device-info';
 
 const Stack = createNativeStackNavigator();
-
-const MyStack = () => {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{ title: "Welcome" }}
-        />
-        <Stack.Screen name="WatchList" component={WatchList} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-};
 
 export default function App() {
   return (

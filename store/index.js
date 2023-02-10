@@ -6,25 +6,34 @@ const reducerFoo = (state = defaultState, action) => {
     if(action.type === 'fetchDataForInitialState') {
         let curState = [...state];
         const items = action.allItems;
-        // console.log(items, "line 11 in index.js");
+    
         curState = items;
-        // console.log("line 11 index.js:", curState);
+        // console.log("Current State->>>", curState);
+    
         return curState;
     }
     else if(action.type === 'deleteShowFromWatchedList') {
         let curState = [...state];
         const idx = curState.findIndex((obj) => obj.id === action.id); 
         curState.splice(idx, 1);
-        console.log("Action type - delete :::::", curState);
+ 
         return curState;
     }
     else if(action.type === 'updateWatchedItems') {
         let curState = [...state];
-        let idx = curState.findIndex((obj) => obj.name === action.title && obj.category === action.category);
+        // todo.
+        let idx = curState.findIndex((obj) => obj.deviceId === action.deviceId);
         if(idx >= 0) curState[idx].watched = true;
         
-        console.log( "line 22:: ", curState);
+        // console.log( "line 22:: ", curState);
         
+        return curState;
+    }
+    else if(action.type === 'addShowToList') {
+        let curState = [...state];
+        let obj = action.showObject;
+        curState.push(obj);
+        console.log("In index.js, Action.type == addShowToList::::::", curState);
         return curState;
     }
 
