@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator } from "react-native";
 import {app, db, getFirestore, collection, addDoc, getDocs} from "../firebase/index.js";
 import {useEffect, useState} from "react"
 import { NeuView } from "neumorphism-ui";
@@ -16,7 +16,7 @@ function Home({navigation}) {
   const getAllItemsFromFirebase = async() => {
       // const querySnapshot = await getDocs(collection(db, "watchlist"));
 
-      const watchlistRef = collection(db, "watchlist");
+    const watchlistRef = collection(db, "watchlist");
 
      const q = query(watchlistRef, where("deviceId", "==", Device.osBuildFingerprint));
     //  const q = query(watchlistRef, where("category", "==", "Anime"));
@@ -46,6 +46,7 @@ function Home({navigation}) {
 
   return (
     <View style={styles.home}>
+     
       <View style={styles.header}>
         <Text style={{fontSize : 20}}> A Minimalist Watchlist </Text>
       </View>
@@ -65,6 +66,7 @@ function Home({navigation}) {
         })}
 
       </View>
+      
     </View>
   );
 }

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { NeuButton, NeuView } from "neumorphism-ui";
 import { AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Feather, Entypo } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { db, updateDoc, doc, deleteDoc } from "../firebase/index.js";
 
@@ -23,26 +23,28 @@ export default function Item(props) {
     secondaryList,
     setList,
     setSecondaryList,
-
+    docId,
   } = props;
 
   const dispatch = useDispatch();
-  // const curItem = useSelector((state) => state[idx]);
+  const curItem = useSelector((state) =>
+    state.find((obj) => obj.name === title));
 
-  const updateWatchListInFirebase = async () => {
-
-    const watchlistRef = doc(db, "watchlist", showObject.id);
+  const updateWatchListInFirebase = async() => {
     
+    console.log("Cur Item", curItem);
+    const curId = curItem.id ? curItem.id : docId;
+    console.log(`Updating Document with name ${title} has id ${curId}`);
+    const watchlistRef = doc(db, "watchlist", curId);
+     
     await updateDoc(watchlistRef, {
-      watched: true,
+      watched: true
     });
 
     dispatch({ type: "updateWatchedItems", deviceId : showObject.deviceId });
 
     const l = [...list];
     const sl = [...secondaryList];
-    //todo.
-    // temp[idx] = !temp[idx];
 
     l.splice(idx, 1);
     sl.push(showObject);
@@ -53,8 +55,10 @@ export default function Item(props) {
 
   const deleteWatchedShow = async () => {
 
-    await deleteDoc(doc(db, "watchlist", showObject.id));
-    dispatch({ type: "deleteShowFromWatchedList", id: showObject.id });
+    const curId = curItem.id ? curItem.id : docId;
+    console.log(`Deleting Document with name ${title} has the id ${curId}`);
+    await deleteDoc(doc(db, "watchlist",curId));
+    dispatch({ type: "deleteShowFromWatchedList", id: curId });
     
     const arr = [...list];
     arr.splice(idx, 1);
@@ -65,9 +69,11 @@ export default function Item(props) {
   return (
     <View style={styles.container}>
       
-      {!watched && <TouchableOpacity  onPress={deleteWatchedShow}>
-            <MaterialIcons name="delete-outline" size={24} color="black" />
-          </TouchableOpacity>}
+      {!watched ? <TouchableOpacity  onPress={deleteWatchedShow}>
+            <MaterialIcons name="delete-outline" size={24} color="#E3E3E6" />
+          </TouchableOpacity> :
+            <Feather name="check-circle" size={24} color="#E3E3E6" />
+      }
 
       <View style={{ alignItems: "center" }}>
         <Text style={styles.title}>{title}</Text>
@@ -76,15 +82,16 @@ export default function Item(props) {
       {!watched ? (
         <View style={{flexDirection : "row", alignItems:"center"}}>
           <TouchableOpacity onPress={updateWatchListInFirebase}>
-            <AntDesign name="checkcircleo" size={24} color="black" />
+            <Entypo name="circle" size={24} color="#E3E3E6" />
           </TouchableOpacity>
 
         </View>
       ) : (
         <TouchableOpacity onPress={deleteWatchedShow}>
-          <MaterialIcons name="delete" size={24} color="black" />
-        </TouchableOpacity>
+        <AntDesign name="delete" size={24} color="#E3E3E6" />
+      </TouchableOpacity>
       )}
+
     </View>
   );
 }
@@ -97,7 +104,7 @@ const styles = StyleSheet.create({
     padding: 10,
     width: "90%",
     alignSelf: "center",
-    backgroundColor: "lightgray",
+    backgroundColor: "#24249C",
     borderRadius: 10,
     marginVertical: 10,
   },
@@ -105,6 +112,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 2,
     fontSize: 20,
+    color : "white",
     fontWeight: "300%",
   },
 });

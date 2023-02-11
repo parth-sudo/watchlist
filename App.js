@@ -7,6 +7,7 @@ import {
   Button,
 } from "react-native";
 import Home from "./components/Home.js";
+import ShowDetailScreen from "./components/ShowDetailScreen.js";
 import WatchList from "./components/WatchList.js";
 import { Provider } from "react-redux";
 import store from "./store/index.js";
@@ -27,6 +28,7 @@ export default function App() {
               options={{ title: "Home" }}
             />
             <Stack.Screen name="WatchList" component={WatchList} />
+            <Stack.Screen name="ShowDetail" component={ShowDetailScreen} />
           </Stack.Navigator>
         </NavigationContainer>
     </Provider>

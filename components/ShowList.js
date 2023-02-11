@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     ScrollView,
     FlatList,
+    TouchableHighlight
   } from "react-native";
 
 import { NeuView } from "neumorphism-ui";
@@ -15,7 +16,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {useState, useEffect} from "react";
 import Item from "./Item.js";
 
-function ShowList({list, secondaryList, setList, setSecondaryList, category, isShowWatched}) {
+function ShowList({ navigation, docId, list, secondaryList, setList, setSecondaryList, category, isShowWatched}) {
     
     const [check, setCheck] = useState(isShowWatched);
     const [checkedShows, setCheckedShows] = useState(new Array(list.length).fill(isShowWatched));
@@ -28,21 +29,24 @@ function ShowList({list, secondaryList, setList, setSecondaryList, category, isS
         {list.length > 0 ? (
             list.map((item, idx) => {
                 return (
-                <View style={styles.listInner} key={idx}>
-                  
-                      <Item 
-                        showObject = {item} 
-                        idx = {idx} 
-                        title={item.name} 
-                        watched={isShowWatched}
-                        list = {list}
-                        secondaryList = {secondaryList}
-                        setList = {setList}
-                        setSecondaryList = {setSecondaryList}
-                        category = {category}
-                      />
-   
-                </View>
+               
+                    <View style={styles.listInner} key={idx}>
+                        {/* <TouchableHighlight style={styles.listInner}  onPress={() => navigation.navigate('ShowDetail')}> */}
+                          <Item 
+                            showObject = {item} 
+                            idx = {idx} 
+                            title={item.name} 
+                            watched={isShowWatched}
+                            list = {list}
+                            secondaryList = {secondaryList}
+                            setList = {setList}
+                            setSecondaryList = {setSecondaryList}
+                            category = {category}
+                            docId = {docId}
+                          />
+                          {/* </TouchableHighlight> */}
+                    </View>
+               
             );
         })
         ) : (
@@ -68,7 +72,6 @@ const styles = StyleSheet.create({
     list: {
       alignItems: "center",
       padding : 3,
-      
     },
     listInner : {
       flexDirection : "row",

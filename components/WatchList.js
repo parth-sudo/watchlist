@@ -22,14 +22,14 @@ export default function WatchList({ navigation, route }) {
   const [searchedShow, setSearchedShow] = useState("");
   const [unwatchedList, setUnwatchedList] = useState([]);
   const [watchedList, setWatchedList] = useState([]);
+  const [docId, setDocId] = useState("");
 
   const itemList = useSelector(
     (state) => state.filter((obj) => obj.category === category)
   );
 
   useEffect(() => {
-    // console.log(itemList);
-    // console.log(category);
+ 
     let itemListNames = [];
     itemList.forEach((item) => {
       itemListNames.push(item.name);
@@ -38,9 +38,7 @@ export default function WatchList({ navigation, route }) {
     
     const unWatched = [...itemList.filter((obj) => obj.watched === false)];
     const watched = [...itemList.filter((obj) => obj.watched === true)];
-    const curUnwatched = [...unwatchedList];
-    curUnwatched.concat(unWatched);
-    console.log("Current Unwatched->", unWatched);
+   
     setUnwatchedList(unWatched);
     setWatchedList(watched);
     
@@ -73,9 +71,9 @@ export default function WatchList({ navigation, route }) {
      
       const docRef = await addDoc(collection(db, "watchlist"), showObject);
       const drid = docRef.id;
-      // todo -> add docRef.id in showObject.
   
-      console.log("Document written with ID", docRef.id);
+      setDocId(drid);
+      console.log(`Document ${showObject.name} written with ID ${docRef.id}`);
     } catch(e) {
       console.error("Error adding document", e);
     }
@@ -87,7 +85,6 @@ export default function WatchList({ navigation, route }) {
     setUnwatchedList(arr);
     setShowName("");
 
-    // route.params.getAllItems();
   }
 
   const showSearchResults = () => {
@@ -98,6 +95,8 @@ export default function WatchList({ navigation, route }) {
       Alert.alert("Show not found.");
       return;
     }
+
+    navigation.navigate('ShowDetail');
   }
 
   return (
@@ -128,7 +127,8 @@ export default function WatchList({ navigation, route }) {
         setList = {setUnwatchedList}
         setSecondaryList = {setWatchedList}
         isShowWatched={false}
-  
+        docId = {docId}
+        navigation={navigation}
       />
 
       <View>
@@ -143,6 +143,8 @@ export default function WatchList({ navigation, route }) {
         setList = {setWatchedList}
         setSecondaryList = {setUnwatchedList}
         isShowWatched={true}
+        docId = {docId}
+        navigation={navigation}
       />
       </ScrollView>
 
@@ -157,7 +159,6 @@ export default function WatchList({ navigation, route }) {
             placeholder="Add Show..."
             onSubmitEditing={addShowToListInFirebase}
           />
-  
       
       </View>
 
