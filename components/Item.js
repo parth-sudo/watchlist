@@ -33,15 +33,16 @@ export default function Item(props) {
   const updateWatchListInFirebase = async() => {
     
     console.log("Cur Item", curItem);
-    const curId = curItem.id ? curItem.id : docId;
-    console.log(`Updating Document with name ${title} has id ${curId}`);
+    const so = docId.find((obj) => obj.name === title);
+    const curId = curItem.id ? curItem.id : so.id;
+    // console.log(`Updating Document with name ${title} has id ${curId}`);
     const watchlistRef = doc(db, "watchlist", curId);
      
     await updateDoc(watchlistRef, {
       watched: true
     });
 
-    dispatch({ type: "updateWatchedItems", deviceId : showObject.deviceId });
+    dispatch({ type: "updateWatchedItems", title : title, deviceId : showObject.deviceId });
 
     const l = [...list];
     const sl = [...secondaryList];
@@ -55,13 +56,17 @@ export default function Item(props) {
 
   const deleteWatchedShow = async () => {
 
-    const curId = curItem.id ? curItem.id : docId;
+    const so = docId.find((obj) => obj.name === title);
+ 
+    const curId = curItem.id ? curItem.id : so.id;
+    // console.log("CurItem", curItem);
     console.log(`Deleting Document with name ${title} has the id ${curId}`);
-    await deleteDoc(doc(db, "watchlist",curId));
+    await deleteDoc(doc(db, "watchlist", curId));
     dispatch({ type: "deleteShowFromWatchedList", id: curId });
     
     const arr = [...list];
     arr.splice(idx, 1);
+    console.log("line 69 Item.js arr-", arr);
     setList(arr);
 
   };
@@ -70,9 +75,12 @@ export default function Item(props) {
     <View style={styles.container}>
       
       {!watched ? <TouchableOpacity  onPress={deleteWatchedShow}>
-            <MaterialIcons name="delete-outline" size={24} color="#E3E3E6" />
+             <AntDesign name="delete" size={24} color="#E3E3E6" />
           </TouchableOpacity> :
-            <Feather name="check-circle" size={24} color="#E3E3E6" />
+          
+            <TouchableOpacity onPress={deleteWatchedShow}>
+            <AntDesign name="delete" size={24} color="#E3E3E6" />
+          </TouchableOpacity>
       }
 
       <View style={{ alignItems: "center" }}>
@@ -84,12 +92,10 @@ export default function Item(props) {
           <TouchableOpacity onPress={updateWatchListInFirebase}>
             <Entypo name="circle" size={24} color="#E3E3E6" />
           </TouchableOpacity>
-
+   
         </View>
       ) : (
-        <TouchableOpacity onPress={deleteWatchedShow}>
-        <AntDesign name="delete" size={24} color="#E3E3E6" />
-      </TouchableOpacity>
+        <Feather name="check-circle" size={24} color="#E3E3E6" />
       )}
 
     </View>
@@ -102,9 +108,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 10,
-    width: "90%",
+    width: "89%",
     alignSelf: "center",
-    backgroundColor: "#24249C",
+    backgroundColor: "#1A3883",
     borderRadius: 10,
     marginVertical: 10,
   },

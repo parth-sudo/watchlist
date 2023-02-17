@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator } from "react-native";
 import {app, db, getFirestore, collection, addDoc, getDocs} from "../firebase/index.js";
-import {useEffect, useState} from "react"
+import React, {useEffect, useState} from "react"
 import { NeuView } from "neumorphism-ui";
 import { useSelector, useDispatch } from "react-redux";
 import * as Device from 'expo-device';
 import { query, where } from "firebase/firestore";
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const categories = ["Anime", "Movies", "TV Series", "Books"];
 
@@ -13,6 +15,8 @@ function Home({navigation}) {
   const dispatch = useDispatch();
 
   const [allItems, setAllItems] = useState([]);
+  const [fetchBool, setFetchBool] = useState(false);
+
   const getAllItemsFromFirebase = async() => {
       // const querySnapshot = await getDocs(collection(db, "watchlist"));
 
@@ -30,7 +34,10 @@ function Home({navigation}) {
         arr.push(obj);
       });
 
+      arr.sort((a, b) => a.index - b.index);
+
       console.log("Line 33 at Home.js->", arr);
+   
       setAllItems(arr);
       
       dispatch({type : 'fetchDataForInitialState', allItems : arr});
@@ -41,24 +48,37 @@ function Home({navigation}) {
   
     getAllItemsFromFirebase();
     
-  }, [])
+  }, [fetchBool])
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // console.log("Chuklanion sucks ass");
+      getAllItemsFromFirebase();
+    }, [])
+  );
    
 
   return (
     <View style={styles.home}>
      
-      <View style={styles.header}>
-        <Text style={{fontSize : 20}}> A Minimalist Watchlist </Text>
+      <View style={[styles.header, styles.topShadow]}>
+        <View></View>
+        <TouchableOpacity onPress={() => setFetchBool(!fetchBool)}>
+        <Text style={styles.headerFont}> Minimalist Watchlist </Text>
+        </TouchableOpacity>
+        <Text style={{margin : 10, fontSize:13, color:'#007124', fontFamily :"sans-serif-condensed"}}> A watchlist designed to be simple, if not simpler. </Text>
       </View>
       <View style={styles.cards}>
-        <Text> Categories </Text>
+        <View></View>
+        <View></View>
+        <Text style={styles.headerFont}> Categories </Text>
         {categories.map((item, idx) => {
           return (
         
             <View key={idx}>
-                <TouchableOpacity onPress={() => navigation.navigate('WatchList', {category : item, allItems : allItems})}>
+                <TouchableOpacity onPress={() => navigation.navigate('WatchList', {category : item, allCategoryItems : allItems.filter((show) => show.category === item)})}>
                 <NeuView style={styles.Neu}>
-                    <Text style={{ opacity: 0.9, color: "white" }}>{item}</Text>
+                    <Text style={{ fontSize : 20, color: "#FFF", fontFamily: "sans-serif-light"}}>{item}</Text>
                 </NeuView>
               </TouchableOpacity>
             </View>
@@ -74,14 +94,21 @@ function Home({navigation}) {
 const styles = StyleSheet.create({
   home: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFF", 
     padding: 60,
     flexDirection: "column",
     alignItems: "center",
   },
   header: {
     flex: 1,
-    // backgroundColor
+    backgroundColor:'#D8E9A8', 
+    width: "110%",
+    borderRadius : 10,
+    borderRadiusWidth :2,
+    alignItems:"center",
+    justifyContent : "space-around",
+    marginTop : 20,
+
   },
   cards: {
     flex: 3,
@@ -92,11 +119,25 @@ const styles = StyleSheet.create({
   Neu: {
     width: 300,
     height : 100,
-    backgroundColor: "#62B3FA",
+    backgroundColor: "#1A3883",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
   },
+  headerFont : {
+    fontSize : 20, 
+    color : "#007124",
+    fontFamily : "sans-serif-thin"
+  },
+  topShadow : {
+    shadowOffset : {
+      width : -6,
+      height : -6,
+    },
+    shadowOpacity : 1,
+    shadowRadius: 6,
+    shadowColor : "#FBFFF"
+  }
 });
 
 export default Home;

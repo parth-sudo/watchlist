@@ -7,7 +7,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import React from "react";
+import React, {useRef} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import ShowList from "./ShowList";
@@ -22,22 +22,28 @@ export default function WatchList({ navigation, route }) {
   const [searchedShow, setSearchedShow] = useState("");
   const [unwatchedList, setUnwatchedList] = useState([]);
   const [watchedList, setWatchedList] = useState([]);
-  const [docId, setDocId] = useState("");
+  const [docId, setDocId] = useState([]);
+  const [offset,setOffset] = useState(0);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
 
-  const itemList = useSelector(
-    (state) => state.filter((obj) => obj.category === category)
-  );
-
-  useEffect(() => {
- 
+  const itemList = route.params.allCategoryItems;
+  
+  const getItemNamesFoo = (list) => {
     let itemListNames = [];
-    itemList.forEach((item) => {
+    list.forEach((item) => {
       itemListNames.push(item.name);
     });
-    console.log("item list of watchlist screen::::", itemListNames);
-    
+    return itemListNames;
+  }
+
+  useEffect(() => {
+
+    console.log("Shows::::::", getItemNamesFoo(itemList));
+     
     const unWatched = [...itemList.filter((obj) => obj.watched === false)];
+    console.log("yet to watch::::::", getItemNamesFoo(unWatched));
     const watched = [...itemList.filter((obj) => obj.watched === true)];
+    console.log("watched::::::", getItemNamesFoo(watched));
    
     setUnwatchedList(unWatched);
     setWatchedList(watched);
@@ -56,11 +62,12 @@ export default function WatchList({ navigation, route }) {
       return;
     }
     else if(unwatchedList.findIndex((obj) => obj.name === str) >= 0 || watchedList.findIndex((obj) => obj.name === str) >= 0) {
-      Alert.alert(`${str} already exists in your watchlist.`);
+      Alert.alert(`${str} already exists in your list.`);
       return;
     }
 
     const showObject = {
+      index : unwatchedList.length + 1,
       name : showName,
       watched : false,
       category : category,
@@ -71,8 +78,10 @@ export default function WatchList({ navigation, route }) {
      
       const docRef = await addDoc(collection(db, "watchlist"), showObject);
       const drid = docRef.id;
-  
-      setDocId(drid);
+      const obj = {name : showName, id : drid};
+      const arr = [...docId];
+      arr.push(obj);
+      setDocId(arr);
       console.log(`Document ${showObject.name} written with ID ${docRef.id}`);
     } catch(e) {
       console.error("Error adding document", e);
@@ -87,16 +96,54 @@ export default function WatchList({ navigation, route }) {
 
   }
 
+  const scrollViewRef = useRef();
+ 
+  const scrollViewSizeChanged = (height) => {
+  
+    scrollViewRef.current?.scrollTo({y: scrollViewHeight, animated: true}); 
+    setScrollViewHeight(height);
+  } 
+
+  const slowlyScrollDown = (numberOfItems, itemPosition) => {
+    // if(itemPosition <= 2) return;
+    const height = scrollViewHeight/1.5;
+    const y = (height/numberOfItems)*itemPosition;
+    console.log("scrollViewHeight, numberOfItems, itemPosition", height, numberOfItems, itemPosition, y);
+    scrollViewRef.current?.scrollTo({x: 0, y, animated: true});
+    // setOffset(y);
+  }
+  const searchShowFoo = (list) => {
+
+    let idx = -1, res = -1;
+    list.forEach((show) => {
+      idx++;
+      let str = show.name.toString().toLowerCase();
+      let showStr = str.split(" ").join("");
+      let typedStr = searchedShow.toString().toLowerCase().split(" ").join("");
+      console.log(typedStr, showStr);
+      if(typedStr === showStr) {
+        console.log("Ricunt");
+        res = idx;
+      }
+    })
+
+    return res;
+  }
   const showSearchResults = () => {
-    
-    const id1 = watchedList.findIndex((obj) => obj.name === searchedShow);
-    const id2 = unwatchedList.findIndex((obj) => obj.name === searchedShow);
+     
+    const id1 = searchShowFoo(unwatchedList);
+    const id2 = searchShowFoo(watchedList);
+    console.log("showing search result with index: ", id1, id2);
     if(id1 < 0 && id2 < 0) {
       Alert.alert("Show not found.");
       return;
     }
 
-    navigation.navigate('ShowDetail');
+    // scrollViewRef.current?.scrollTo({y: height, animated: true}); 
+    const currentPosition = (id1 >= 0 ? id1 : (id2 >= 0 ? unwatchedList.length + id2 : -1)) + 1;
+    const numberOfItems = (id1 >= 0 ? unwatchedList.length : (id2 >= 0 ?  unwatchedList.length + watchedList.length : 0));
+    slowlyScrollDown(numberOfItems, currentPosition);
+
   }
 
   return (
@@ -109,32 +156,36 @@ export default function WatchList({ navigation, route }) {
             style={styles.searchBar}
             onChangeText={setSearchedShow}
             value={searchedShow} 
-            placeholder= "Search Show...🔍"
-       
+            placeholder= "Search Show 🔍"
             onSubmitEditing={showSearchResults}
           />
       </View>
      
-      <Text style={{marginTop : 30}}> Yet to watch ({unwatchedList.length})</Text>
+      <Text style={{marginTop : 30, fontFamily:"monospace"}}> Yet to {category === 'Books' ? "Read" : "Watch"} ({unwatchedList.length})</Text> 
 
       <View style={{flex : 3}}>
-      <ScrollView>
-      <ShowList
-        type="Unwatched"
-        category={category}
-        list={unwatchedList}
-        secondaryList = {watchedList}
-        setList = {setUnwatchedList}
-        setSecondaryList = {setWatchedList}
-        isShowWatched={false}
-        docId = {docId}
-        navigation={navigation}
-      />
+
+      <ScrollView ref={scrollViewRef} onContentSizeChange={(width,height) => {scrollViewSizeChanged(height)}}>
+        <ShowList
+          type="Unwatched"
+          category={category}
+          list={unwatchedList}
+          secondaryList = {watchedList}
+          setList = {setUnwatchedList}
+          setSecondaryList = {setWatchedList}
+          isShowWatched={false}
+          docId = {docId}
+          navigation={navigation}
+        />
+     {/* </ScrollView> */}
+
 
       <View>
-      <Text style={styles.loginButtonBelowText1}>Watched ({watchedList.length})</Text>
+        {watchedList.length >= 0 && <Text style={styles.inBetweenText}> {category === 'Books' ? "Read" : "Watched"} ({watchedList.length})</Text> }
+    
       </View>
-      
+{/*       
+      <ScrollView> */}
       <ShowList
         type="Watched"
         category={category}
@@ -148,6 +199,8 @@ export default function WatchList({ navigation, route }) {
       />
       </ScrollView>
 
+      {watchedList.length < 1 && unwatchedList.length < 1 && <Text> Empty {category === 'Books' ? "Readlist" : "Watchlist"}. 😓 Click below to add {category === 'Books' ? "📚" : "📺"}</Text>}
+
       </View>      
     
       <View style={{ flexDirection : "row", alignItems: "center", padding: 10}}>
@@ -156,7 +209,7 @@ export default function WatchList({ navigation, route }) {
             style={styles.addShow}
             onChangeText={setShowName}
             value={showName}
-            placeholder="Add Show..."
+            placeholder="Add Show ➕"
             onSubmitEditing={addShowToListInFirebase}
           />
       
@@ -170,8 +223,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    backgroundColor : "#FFF"
   },
-
   list: {
     alignItems: "center",
     padding: 10,
@@ -187,8 +240,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 10,
   },
-  loginButtonBelowText1: {
-    // fontFamily: 'Consolas',
+  inBetweenText: {
+    fontFamily: 'monospace',
     fontSize: 14,
     paddingHorizontal: 5,
     alignSelf: "center",

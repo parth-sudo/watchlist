@@ -1,6 +1,6 @@
-import {createStore} from 'redux';
+import {createStore, combineReducers} from 'redux';
 
-let defaultState = []
+let defaultState = [{name : "cc", watched : false}]
 
 const reducerFoo = (state = defaultState, action) => {
     if(action.type === 'fetchDataForInitialState') {
@@ -8,7 +8,17 @@ const reducerFoo = (state = defaultState, action) => {
         const items = action.allItems;
     
         curState = items;
-        // console.log("Current State->>>", curState);
+        console.log("Initial Current State->>>");
+        curState.forEach((item) => {
+            console.log(item.name);
+        })
+    
+        return curState; 
+    }
+    else if(action.type === 'addShowToList') {
+        let curState = [...state];
+        let obj = action.showObject;
+        curState.push(obj);
     
         return curState;
     }
@@ -22,18 +32,9 @@ const reducerFoo = (state = defaultState, action) => {
     else if(action.type === 'updateWatchedItems') {
         let curState = [...state];
         // todo.
-        let idx = curState.findIndex((obj) => obj.deviceId === action.deviceId);
+        let idx = curState.findIndex((obj) => obj.deviceId === action.deviceId && obj.title === action.title);
         if(idx >= 0) curState[idx].watched = true;
         
-        // console.log( "line 22:: ", curState);
-        
-        return curState;
-    }
-    else if(action.type === 'addShowToList') {
-        let curState = [...state];
-        let obj = action.showObject;
-        curState.push(obj);
-        console.log("In index.js, Action.type == addShowToList::::::", curState);
         return curState;
     }
 

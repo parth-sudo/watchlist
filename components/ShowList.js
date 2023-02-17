@@ -21,7 +21,6 @@ function ShowList({ navigation, docId, list, secondaryList, setList, setSecondar
     const [check, setCheck] = useState(isShowWatched);
     const [checkedShows, setCheckedShows] = useState(new Array(list.length).fill(isShowWatched));
     
-    
   return (
     
     <View style={styles.list}>
@@ -31,7 +30,7 @@ function ShowList({ navigation, docId, list, secondaryList, setList, setSecondar
                 return (
                
                     <View style={styles.listInner} key={idx}>
-                        {/* <TouchableHighlight style={styles.listInner}  onPress={() => navigation.navigate('ShowDetail')}> */}
+                        {/* <TouchableOpacity style={{width:"95%"}}  onPress={() => navigation.navigate('ShowDetail', {show : item})}> */}
                           <Item 
                             showObject = {item} 
                             idx = {idx} 
@@ -44,13 +43,14 @@ function ShowList({ navigation, docId, list, secondaryList, setList, setSecondar
                             category = {category}
                             docId = {docId}
                           />
-                          {/* </TouchableHighlight> */}
+                          {/* </TouchableOpacity> */}
                     </View>
                
             );
         })
         ) : (
-        <Text>  </Text>
+          <Text></Text>
+        // list.length === 0 && <Text> Empty {category === 'Books' ? "Readlist" : "Watchlist"}  </Text>
         )}
   
   </View>
