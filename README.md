@@ -1,4 +1,5 @@
-# Minimalist Watchlist - A watchlist designed to be simple, if not simpler.
+# Minimalist Watchlist. 
+A watchlist designed to be simple, if not simpler.
 
 # Purpose of this app-
 There are a lot of anime / TV shows being released these days. I simply can't remember everything which I need to watch in my spare time. 
