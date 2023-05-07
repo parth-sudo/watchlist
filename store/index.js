@@ -8,10 +8,6 @@ const reducerFoo = (state = defaultState, action) => {
         const items = action.allItems;
     
         curState = items;
-        console.log("Initial Current State->>>");
-        curState.forEach((item) => {
-            console.log(item.name);
-        })
     
         return curState; 
     }

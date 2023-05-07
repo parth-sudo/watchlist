@@ -122,7 +122,6 @@ export default function WatchList({ navigation, route }) {
       let typedStr = searchedShow.toString().toLowerCase().split(" ").join("");
       console.log(typedStr, showStr);
       if(typedStr === showStr) {
-        console.log("Ricunt");
         res = idx;
       }
     })

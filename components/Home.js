@@ -35,8 +35,6 @@ function Home({navigation}) {
       });
 
       arr.sort((a, b) => a.index - b.index);
-
-      console.log("Line 33 at Home.js->", arr);
    
       setAllItems(arr);
       
@@ -52,7 +50,6 @@ function Home({navigation}) {
 
   useFocusEffect(
     React.useCallback(() => {
-      // console.log("Chuklanion sucks ass");
       getAllItemsFromFirebase();
     }, [])
   );
@@ -62,7 +59,7 @@ function Home({navigation}) {
     <View style={styles.home}>
      
       <View style={[styles.header, styles.topShadow]}>
-        <View></View>
+    
         <TouchableOpacity onPress={() => setFetchBool(!fetchBool)}>
         <Text style={styles.headerFont}> Minimalist Watchlist </Text>
         </TouchableOpacity>
@@ -100,13 +97,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: {
-    flex: 1,
+    flex: 2,
     backgroundColor:'#D8E9A8', 
     width: "110%",
     borderRadius : 10,
     borderRadiusWidth :2,
     alignItems:"center",
-    justifyContent : "space-around",
+    justifyContent : "center",
     marginTop : 20,
 
   },
@@ -125,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   headerFont : {
-    fontSize : 20, 
+    fontSize : 30, 
     color : "#007124",
     fontFamily : "sans-serif-thin"
   },

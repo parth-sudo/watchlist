@@ -83,7 +83,7 @@ export default function Item(props) {
           </TouchableOpacity>
       }
 
-      <View style={{ alignItems: "center" }}>
+      <View style={{ flex : 1, alignItems: "center" }}>
         <Text style={styles.title}>{title}</Text>
       </View>
 
@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     fontSize: 20,
     color : "white",
-    fontWeight: "300%",
+    fontWeight: "400%",
+    fontFamily: "sans-serif-light"
   },
 });
